@@ -14,10 +14,10 @@
     <ClCompile Include="..\Source\PathTracingApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FSLShader Include="..\Source\Shaders\Headers\Defines.h.fsl" />
-    <FSLShader Include="..\Source\Shaders\Headers\Helpers.h.fsl" />
+    <FSLShader Include="..\Source\Shaders\Headers\Define.h.fsl" />
+    <FSLShader Include="..\Source\Shaders\Headers\Helper.h.fsl" />
     <FSLShader Include="..\Source\Shaders\Headers\Random.h.fsl" />
-    <FSLShader Include="..\Source\Shaders\Headers\Resources.h.fsl" />
+    <FSLShader Include="..\Source\Shaders\Headers\Resource.h.fsl" />
     <FSLShader Include="..\Source\Shaders\Headers\Sky.h.fsl" />
     <FSLShader Include="..\Source\Shaders\Quad.vert.fsl" />
     <FSLShader Include="..\Source\Shaders\Resolve.comp.fsl" />

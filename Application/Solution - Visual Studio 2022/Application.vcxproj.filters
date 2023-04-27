@@ -26,16 +26,16 @@
     <FSLShader Include="..\Source\Shaders\ShaderList.fsl">
       <Filter>Shaders</Filter>
     </FSLShader>
-    <FSLShader Include="..\Source\Shaders\Headers\Defines.h.fsl">
+    <FSLShader Include="..\Source\Shaders\Headers\Define.h.fsl">
       <Filter>Shaders\Headers</Filter>
     </FSLShader>
-    <FSLShader Include="..\Source\Shaders\Headers\Helpers.h.fsl">
+    <FSLShader Include="..\Source\Shaders\Headers\Helper.h.fsl">
       <Filter>Shaders\Headers</Filter>
     </FSLShader>
     <FSLShader Include="..\Source\Shaders\Headers\Random.h.fsl">
       <Filter>Shaders\Headers</Filter>
     </FSLShader>
-    <FSLShader Include="..\Source\Shaders\Headers\Resources.h.fsl">
+    <FSLShader Include="..\Source\Shaders\Headers\Resource.h.fsl">
       <Filter>Shaders\Headers</Filter>
     </FSLShader>
     <FSLShader Include="..\Source\Shaders\Resolve.comp.fsl">

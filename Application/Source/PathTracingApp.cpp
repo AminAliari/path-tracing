@@ -333,7 +333,7 @@ public:
                 sunLightXUI.pData = &gSunLightRot.x;
                 sunLightXUI.mMin = -PI;
                 sunLightXUI.mMax = PI;
-                sunLightXUI.mStep = 1e-5f;
+                sunLightXUI.mStep = 1e-8f;
                 pWidget = uiCreateComponentWidget(pGuiWindow, "Sun Light - X", &sunLightXUI, WIDGET_TYPE_SLIDER_FLOAT);
                 pWidget->pOnEdited = [](void*) { resetHistory(); };
 
@@ -341,7 +341,7 @@ public:
                 sunLightYUI.pData = &gSunLightRot.y;
                 sunLightYUI.mMin = -PI;
                 sunLightYUI.mMax = PI;
-                sunLightYUI.mStep = 1e-5f;
+                sunLightYUI.mStep = 1e-8f;
                 pWidget = uiCreateComponentWidget(pGuiWindow, "Sun Light - Y", &sunLightYUI, WIDGET_TYPE_SLIDER_FLOAT);
                 pWidget->pOnEdited = [](void*) { resetHistory(); };
 
