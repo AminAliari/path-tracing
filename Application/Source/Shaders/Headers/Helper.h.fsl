@@ -142,4 +142,4 @@ INLINE float3 gammaCorrect(float3 color)
     return pow(color, DEFAULT_GAMMA);
 }
 
-#endif
+#endif // HELPER_H

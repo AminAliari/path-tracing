@@ -1,5 +1,5 @@
-#ifndef SKY_HELPER_H
-#define SKY_HELPER_H
+#ifndef SKY_H
+#define SKY_H
 
 #include "Define.h.fsl"
 #include "Helper.h.fsl"
@@ -117,4 +117,4 @@ float3 VerySimpleSkybox(float3 rayDir, float3 skyHorizonColor, float3 skyZenithC
     return lerp(skyHorizonColor, skyZenithColor, t);
 }
 
-#endif // SKY_HELPER_H
+#endif // SKY_H

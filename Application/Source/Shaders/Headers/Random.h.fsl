@@ -1,5 +1,5 @@
-#ifndef RANDOM_HELPER_H
-#define RANDOM_HELPER_H
+#ifndef RANDOM_H
+#define RANDOM_H
 
 #include "Define.h.fsl"
 
@@ -49,7 +49,7 @@ float3 randomDirection1(inout(uint) seed)
     return float3(x, y, z);
 }
 
-#endif // RANDOM_HELPER_H
+#endif // RANDOM_H
 
 // // Blue Noise Sampler by Eric Heitz. Returns a value in the range [0, 1].
 // float SampleRandomNumber(in(uint) pixel_i, in(uint) pixel_j, in(uint) sample_index, in(uint) sample_dimension)

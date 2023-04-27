@@ -1,5 +1,5 @@
-#ifndef COMMOND_EFINES_H
-#define COMMOND_EFINES_H
+#ifndef SHARED_H
+#define SHARED_H
 
 #define MAX_QUADS_COUNT 16
 #define MAX_SPHERES_COUNT 16
@@ -77,4 +77,4 @@ static_assert((sizeof(QuadObject) % 16) == 0, "16-byte alignment requirement.");
 static_assert((sizeof(SphereObject) % 16) == 0, "16-byte alignment requirement.");
 #endif // NO_FSL_DEFINITIONS
 
-#endif // COMMOND_EFINES_H
+#endif // SHARED_H

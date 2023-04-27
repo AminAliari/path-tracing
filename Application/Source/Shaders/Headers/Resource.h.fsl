@@ -1,5 +1,5 @@
-#ifndef RESOURCES_H
-#define RESOURCES_H
+#ifndef RESOURCE_H
+#define RESOURCE_H
 
 // includes
 #include "Headers/Shared.h"
@@ -22,4 +22,4 @@ RES(SamplerState,      nearestSampler,    UPDATE_FREQ_NONE, s0, binding = 3);
 RES(Buffer(SphereObject), spheresBuffer,    UPDATE_FREQ_PER_FRAME, t0, binding = 1);
 RES(Buffer(QuadObject),   quadsBuffer,      UPDATE_FREQ_PER_FRAME, t1, binding = 2);
 RES(Buffer(Material),     materialsBuffer,  UPDATE_FREQ_PER_FRAME, t2, binding = 3);
-#endif
+#endif // RESOURCE_H
