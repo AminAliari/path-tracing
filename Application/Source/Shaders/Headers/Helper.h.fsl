@@ -1,0 +1,145 @@
+#ifndef HELPER_H
+#define HELPER_H
+
+#include "Define.h.fsl"
+
+bool raySphereTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir, float3 sphereCenter, float sphereRadius, uint matId)
+{
+    bool ret = false;
+
+    float3 centerToOrigin = rayOrigin - sphereCenter;
+    float a = dot(rayDir, rayDir);
+    float h = dot(centerToOrigin, rayDir);
+    float c = dot(centerToOrigin, centerToOrigin) - sphereRadius * sphereRadius;
+    float d = h*h - a*c;
+
+    if (d < 0 || h > 0)
+    {
+        return ret;
+    }
+    
+    float sqrtd = sqrt(d);
+    float t = (-h - sqrtd) / a;
+
+    if (t > EPSILON)
+    {
+        if (t < closestHit.t)
+        {
+            ret = true;
+
+            closestHit.t = t;
+            closestHit.matId = matId;
+            closestHit.pos = rayOrigin + rayDir * closestHit.t;
+            closestHit.normal = (closestHit.pos - sphereCenter) / sphereRadius;
+
+            float isFrontFace = step(0, dot(rayDir, closestHit.normal));
+            closestHit.normal = lerp(closestHit.normal, -closestHit.normal, isFrontFace);
+        }
+    }
+
+    return ret;
+}
+
+bool rayQuadTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir, float3 a, float3 b, float3 c, float3 d, uint matId)
+{
+    bool ret = false;
+
+	float3 quadNormal = normalize(cross(b - a, c - a));
+    float denom = dot(quadNormal, rayDir);
+
+    if (abs(denom) > EPSILON)
+    {
+        float t = dot(a - rayOrigin, quadNormal) / denom;
+
+        if (t > 1e-3)
+        {
+            if (t < closestHit.t)
+            {
+                float3 hitPoint = rayOrigin + t * rayDir;
+
+                // check intersection-vertices with edges.
+                float step0 = step(0, dot(cross(b - a, hitPoint - a), quadNormal));
+				float step1 = step(0, dot(cross(c - b, hitPoint - b), quadNormal));
+				float step2 = step(0, dot(cross(d - c, hitPoint - c), quadNormal));
+				float step3 = step(0, dot(cross(a - d, hitPoint - d), quadNormal));
+				float steps = step0 + step1 + step2 + step3;
+
+				if (steps == 0.0 || steps == 4.0)
+				{
+                    ret = true;
+                    closestHit.t = t;
+                    closestHit.matId = matId;
+                    closestHit.pos = hitPoint;
+                    // handle back side.
+                    closestHit.normal = lerp(quadNormal, -quadNormal, step(0, denom));
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+// ref: https://raytracing.github.io/books/RayTracingInOneWeekend.html
+bool rayCenterSphereTest(float3 rayOrigin, float3 rayDir, float radius, inout(float) t0, inout(float) t1)
+{
+    float3 oc = rayOrigin;
+    float a = dot(rayDir, rayDir);
+    float h = dot(oc, rayDir);
+    float c = dot(oc, oc) - radius * radius;
+
+    float discriminant = h * h - a * c;
+    
+    if (discriminant < 0)
+    {
+        return false;
+    }
+
+    float sqrtd = sqrt(discriminant);
+
+    // Find the nearest root that lies in the acceptable range.
+    float invA = 1.0 / max(a, EPSILON);
+    t0 = (-h - sqrtd) * invA;
+    t1 = (-h + sqrtd) * invA;
+
+    if (t0 > t1)
+    {
+        invA = t0; // invA used as a temp var.
+        t0 = t1;
+        t1 = invA;
+    }
+    
+    return true;
+}
+
+// coordinate space transforms
+INLINE float2 clipToUv(float2 clipspace)
+{
+    return clipspace * float2(0.5, -0.5) + 0.5;
+}
+
+INLINE float3 clipToUv(float3 clipspace)
+{
+    return clipspace * float3(0.5, -0.5, 0.5) + 0.5;
+}
+
+INLINE float2 uvToClip(float2 uv)
+{
+	float2 clipspace = uv * 2 - 1;
+	clipspace.y *= -1;
+	return clipspace;
+}
+
+INLINE float3 clipToWorld(float3 clipspace, float4x4 invProj)
+{
+	float4 worldPos = mul(invProj, float4(clipspace.xyz, 1));
+    return worldPos.xyz / worldPos.w;
+}
+
+// color space transforms
+INLINE float3 gammaCorrect(float3 color)
+{
+    return pow(color, DEFAULT_GAMMA);
+}
+
+#endif

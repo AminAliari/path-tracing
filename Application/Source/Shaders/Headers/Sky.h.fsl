@@ -1,0 +1,120 @@
+#ifndef SKY_HELPER_H
+#define SKY_HELPER_H
+
+#include "Define.h.fsl"
+#include "Helper.h.fsl"
+
+// ref: https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky.html
+float3 ExpensiveAtmosphere(float3 rayDir, float3 sunDir)
+{
+    float3 rayOrigin = float3(0, EARTH_RADIUS + 1.0, 0);
+
+    float t0, t1;
+    if (!rayCenterSphereTest(rayOrigin, rayDir, ATMOSPHERE_RADIUS, t0, t1) || t1 < 0)
+    {
+        return f3(0);
+    }
+
+    float tMin = 0;
+    float tMax = FLT_MAX;
+
+    if (t0 > tMin && t0 > 0)
+    {
+        tMin = t0;
+    }
+
+    if (t1 < tMax)
+    {
+        tMax = t1;
+    }
+
+    // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
+    float mu = dot(rayDir, sunDir);
+    float phaseR = 3.0 / (16.0 * PI) * (1.0 + mu * mu); 
+    float g = 0.76;
+    float phaseM = 3.0 / (8.0 * PI) * ((1.0 - g * g) * (1.0 + mu * mu)) / ((2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+    
+    float tCurrent = tMin;
+    float opticalDepthR = 0;
+    float opticalDepthM = 0;
+    float segmentLength = (tMax - tMin) / float(SKY_SAMPLE_COUNT);
+
+    // mie and rayleigh contribution 
+    float3 sumR = f3(0);
+    float3 sumM = f3(0);
+
+    for (uint i = 0; i < SKY_SAMPLE_COUNT; ++i)
+    {
+        float3 samplePosition = rayOrigin + (tCurrent + segmentLength * 0.5) * rayDir;
+        float height = length(samplePosition) - EARTH_RADIUS;
+
+        // compute optical depth for light
+        float hr = exp(-height / SKY_HR) * segmentLength;
+        float hm = exp(-height / SKY_HM) * segmentLength;
+        opticalDepthR += hr;
+        opticalDepthM += hm;
+
+        // light optical depth
+        float t0Light, t1Light;
+        rayCenterSphereTest(samplePosition, sunDir, ATMOSPHERE_RADIUS, t0Light, t1Light);
+
+        float tCurrentLight = 0;
+        float opticalDepthLightR = 0;
+        float opticalDepthLightM = 0;
+        float segmentLengthLight = t1Light / float(SKY_LIGHT_SAMPLE_COUNT);
+
+        uint j;
+        for (j = 0; j < SKY_LIGHT_SAMPLE_COUNT; ++j)
+        {
+            float3 samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5) * sunDir;
+            float heightLight = length(samplePositionLight) - EARTH_RADIUS;
+
+            if (heightLight < 0)
+            {
+                break;
+            }
+
+            opticalDepthLightR += exp(-heightLight / SKY_HR) * segmentLengthLight;
+            opticalDepthLightM += exp(-heightLight / SKY_HM) * segmentLengthLight;
+            tCurrentLight += segmentLengthLight;
+        }
+
+        if (j == SKY_LIGHT_SAMPLE_COUNT)
+        {
+            float3 tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1 * (opticalDepthM + opticalDepthLightM);
+            float3 attenuation = float3(exp(-tau.x), exp(-tau.y), exp(-tau.z));
+            sumR += attenuation * hr;
+            sumM += attenuation * hm;
+        }
+
+        tCurrent += segmentLength;
+    }
+ 
+    // todo(amin): This is not scientific as 20 is a magic number.
+    return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 20.0; 
+}
+
+// ref: SebastianLague
+float3 SimpleSkybox(float3 rayDir, float3 sunDir, float3 groundColor, float3 skyHorizonColor, float3 skyZenithColor, float sunFocus, float sunIntensity)
+{
+    const float skyGradientT = pow(smoothstep(0, 0.4, rayDir.y), 0.35);
+    const float3 skyGradient = lerp(skyHorizonColor, skyZenithColor, skyGradientT);
+
+    float sunEffect = 0;
+    const float groundToSkyT = smoothstep(-0.01, 0, rayDir.y);
+
+    if (groundToSkyT >= 1)
+    {
+        sunEffect = pow(max(0, dot(rayDir, sunDir)), sunFocus) * sunIntensity;
+    }
+    
+    return lerp(groundColor, skyGradient, groundToSkyT) + sunEffect;
+}
+
+float3 VerySimpleSkybox(float3 rayDir, float3 skyHorizonColor, float3 skyZenithColor)
+{
+    float t = (rayDir.y + 1.0) * 0.5;
+    return lerp(skyHorizonColor, skyZenithColor, t);
+}
+
+#endif // SKY_HELPER_H

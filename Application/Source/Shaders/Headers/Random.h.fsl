@@ -1,0 +1,83 @@
+#ifndef RANDOM_HELPER_H
+#define RANDOM_HELPER_H
+
+#include "Define.h.fsl"
+
+// ref: https://shadertoy.com/view/XlGcRh
+uint nextRandom(inout(uint) seed)
+{
+    seed = seed * 747796405 + 2891336453;
+    uint result = ((seed >> ((seed >> 28) + 4)) ^ seed) * 277803737;
+    result = (result >> 22) ^ result;
+    return result;
+}
+
+// ref: https://github.com/SebLague
+float randomValue(inout(uint) seed)
+{
+    return nextRandom(seed) / 4294967295.0; // 2^32 - 1
+}
+
+// ref: https://stackoverflow.com/a/6178290
+float randomFromNormalDistribution(inout(uint) seed)
+{
+    float  theta = 2 * 3.1415926 * randomValue(seed);
+    float  rho = sqrt(-2 * log(randomValue(seed)));
+    return rho * cos(theta);
+}
+
+// ref: https://math.stackexchange.com/a/1585996
+float3 randomDirection(inout(uint) seed)
+{
+    float x = randomFromNormalDistribution(seed);
+    float y = randomFromNormalDistribution(seed);
+    float z = randomFromNormalDistribution(seed);
+    return normalize(float3(x, y, z));
+}
+
+float3 randomDirection1(inout(uint) seed)
+{
+    // this is probably slower.
+
+    float u = randomValue(seed);
+    float v = randomValue(seed);
+    float theta = 2 * PI * u;
+    float phi = acos(2 * v - 1);
+    float x = sin(phi) * cos(theta);
+    float y = sin(phi) * sin(theta);
+    float z = cos(phi);
+    return float3(x, y, z);
+}
+
+#endif // RANDOM_HELPER_H
+
+// // Blue Noise Sampler by Eric Heitz. Returns a value in the range [0, 1].
+// float SampleRandomNumber(in(uint) pixel_i, in(uint) pixel_j, in(uint) sample_index, in(uint) sample_dimension)
+// {
+//     // Wrap arguments
+//     pixel_i = pixel_i & 127u;
+//     pixel_j = pixel_j & 127u;
+//     sample_index = sample_index & 255u;
+//     sample_dimension = sample_dimension & 255u;
+
+//     // xor index based on optimized ranking
+//     const uint ranked_sample_index = sample_index ^ Get(g_ranking_tile_buffer)[sample_dimension + (pixel_i + pixel_j * 128u) * 8u];
+
+//     // Fetch value in sequence
+//     uint value = Get(g_sobol_buffer)[sample_dimension + ranked_sample_index * 256u];
+
+//     // If the dimension is optimized, xor sequence value based on optimized scrambling
+//     value = value ^ Get(g_scrambling_tile_buffer)[(sample_dimension % 8u) + (pixel_i + pixel_j * 128u) * 8u];
+
+//     // Convert to float and return
+//     return (value + 0.5f) / 256.0f;
+// }
+
+// float2 SampleRandomVector2(uint2 pixel)
+// {
+//     const uint sample_index = 0;
+//     float2 u = float2(
+//         fmod(SampleRandomNumber(pixel.x, pixel.y, sample_index, 0u) + (Get(g_frame_index) & 0xFFu) * FFX_SSSR_GOLDEN_RATIO, 1.0f),
+//         fmod(SampleRandomNumber(pixel.x, pixel.y, sample_index, 1u) + (Get(g_frame_index) & 0xFFu) * FFX_SSSR_GOLDEN_RATIO, 1.0f));
+//     return u;
+// }

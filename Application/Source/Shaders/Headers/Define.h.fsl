@@ -1,0 +1,43 @@
+#ifndef DEFINES_H
+#define DEFINES_H
+
+#ifndef EPSILON
+#define PI 3.14159265358979323846f
+#endif
+
+#ifndef EPSILON
+#define EPSILON 1e-5
+#endif
+
+#ifndef FLT_MIN
+#define FLT_MIN 1.175494351e-38F
+#endif
+
+#ifndef FLT_MAX
+#define FLT_MAX 1.175494351e+38F
+#endif
+
+#define TILE_SIZE 8
+
+struct HitInfo
+{
+    float3   pos;
+    float3   normal;
+    float    t;
+    uint     matId;
+};
+
+STATIC const float3 DEFAULT_GAMMA = f3(1.0/2.2);
+
+
+#define SKY_SAMPLE_COUNT 8u
+#define SKY_LIGHT_SAMPLE_COUNT 4u
+
+STATIC const float  SKY_HR = 7994.0;
+STATIC const float  SKY_HM = 1200.0;
+STATIC const float  EARTH_RADIUS = 6360e3;
+STATIC const float  ATMOSPHERE_RADIUS = 6420e3;
+STATIC const float3 betaM = f3(21e-6);
+STATIC const float3 betaR = float3(3.8e-6, 13.5e-6, 33.1e-6);
+
+#endif // DEFINES_H

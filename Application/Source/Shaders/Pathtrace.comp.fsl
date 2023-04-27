@@ -1,0 +1,160 @@
+#include "Headers/Sky.h.fsl"
+#include "Headers/Random.h.fsl"
+#include "Headers/Define.h.fsl"
+#include "Headers/Helper.h.fsl"
+#include "Headers/Resource.h.fsl"
+
+float3 CalcSkyColor(float3 rayDir)
+{
+    if (Get(skyMode) == SkyModeEnum_VerySimpleSkybox)
+    {
+        return VerySimpleSkybox(rayDir, Get(skyHorizonColor).rgb, Get(skyZenithColor).rgb);
+    }
+    else if (Get(skyMode) == SkyModeEnum_SimpleSkybox)
+    {
+        return SimpleSkybox(rayDir, Get(sunLightDir).xyz, Get(groundColor).rgb, Get(skyHorizonColor).rgb, Get(skyZenithColor).rgb, Get(sunFocus), Get(sunIntensity));
+    }
+    else if (Get(skyMode) == SkyModeEnum_ExpensiveAtmosphere)
+    {
+        // check if we are hitting the ground.
+        if (dot(rayDir, float3(0, 1, 0)) > 0)
+        {
+            return ExpensiveAtmosphere(rayDir, Get(sunLightDir).xyz);
+        }
+        else
+        {
+            return Get(groundColor).rgb;
+        }
+    }
+
+    return f3(0);
+}
+
+bool raySceneTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir)
+{
+    bool ret = false;
+    closestHit.t = FLT_MAX;
+
+    // spheres
+    {
+        int sphereCount = Get(args).z;
+
+        LOOP
+        for (int i = 0; i < sphereCount; ++i)
+        {
+            SphereObject sphere = Get(spheresBuffer)[i];
+            ret = ret || raySphereTest(closestHit, rayOrigin, rayDir, sphere.centerRadius.xyz, sphere.centerRadius.w, sphere.matId.x);
+        }
+    }
+
+    // quads
+    {
+        int quadCount = Get(args).w;
+
+        LOOP
+        for (int i = 0; i < quadCount; ++i)
+        {
+            QuadObject quad = Get(quadsBuffer)[i];
+
+            // unpack quad corners.
+            float3 a  = quad.aXYZbX.xyz;
+            float3 b  = float3(quad.aXYZbX.w, quad.bYZcXY.xy);
+            float3 c  = float3(quad.bYZcXY.zw, quad.cZdXYZ.x);
+            float3 d  = quad.cZdXYZ.yzw;
+
+            ret = ret || rayQuadTest(closestHit, rayOrigin, rayDir, a, b, c, d, quad.matId.x);
+        }
+    }
+
+    return ret;
+}
+
+float3 TraceRay(float3 rayOrigin, float3 rayDir, inout(uint) seed)
+{
+    float3 accLight = float3(0.0, 0.0, 0.0);
+    float3 rayColor = float3(1.0, 1.0, 1.0);
+
+    const int maxBounce = Get(args).y;
+
+    for (int i = 0; i <= maxBounce; ++i)
+    {
+        HitInfo hitInfo;
+        if (raySceneTest(hitInfo, rayOrigin, rayDir))
+        { 
+            // create a new ray to shoot.
+            rayOrigin = hitInfo.pos;
+            Material mat = Get(materialsBuffer)[hitInfo.matId];
+
+            float specCoeff = mat.spec.a;
+            specCoeff = step(0, specCoeff - randomValue(seed));
+
+            float3 specDir = reflect(rayDir, hitInfo.normal);
+            float3 diffuseDir = normalize(hitInfo.normal + randomDirection(seed));
+
+            rayDir = normalize(lerp(diffuseDir, specDir, mat.glossiness.r * specCoeff));
+
+            // light calculations.
+            float3 emittedLight = mat.emission.rgb * mat.emission.a;
+            accLight += emittedLight * rayColor;
+            rayColor *= lerp(mat.color.rgb, mat.spec.rgb, specCoeff);
+
+            // random exit if ray color is near to black. (Russian roulette)
+            float terminateChance = max(rayColor.r, max(rayColor.g, rayColor.b));
+            if (randomValue(seed) >= terminateChance)
+            {
+                break;
+            }
+
+            terminateChance = max(terminateChance, EPSILON);
+            rayColor *= 1.0 / terminateChance;
+        }
+        else
+        {
+            accLight += CalcSkyColor(rayDir) * rayColor;
+            break;
+        }
+    }
+
+    return accLight;
+}
+
+NUM_THREADS(TILE_SIZE, TILE_SIZE, 1)
+void CS_MAIN(SV_DispatchThreadID(uint3) DTid)
+{
+    INIT_MAIN;
+
+    if (AnyGreaterThan(DTid.xy, Get(screenSize)))
+    {
+        RETURN();
+    }
+
+    // init current lane's random seed.
+    const uint pixelIndex = DTid.y * screenSize.x + DTid.x;
+    uint seed = pixelIndex + Get(frameNumber) * 719393;
+
+    const int spp = Get(args).x;
+    float3 accLight = float3(0, 0, 0);
+
+    for (int i = 0; i < spp; ++i)
+    {
+        // generate a new random inside-pixel offset (jitter).
+        // [0, 1) - 0.5 -> [-0.5 to 0.5) + 0.5 (pixel center) = [0, 1).
+        const float2 jitter = float2(randomValue(seed), randomValue(seed));
+        
+        const float2 uv = (DTid.xy + jitter) * Get(invScreenSize);
+        const float2 clip = uvToClip(uv);
+        const float3 rayDst = clipToWorld(float3(clip.xy, 1.0), Get(invViewProj));
+
+        float3 rayOrigin = Get(camPos).xyz;
+        float3 rayDir = normalize(rayDst - rayOrigin);
+
+        accLight += TraceRay(rayOrigin, rayDir, seed);
+    }
+
+    const float invSpp = 1.0 / float(spp);
+    accLight *= invSpp;
+
+    Write2D(Get(pathtraceUAV), DTid.xy, float4(accLight, 1.0));
+
+    RETURN();
+}

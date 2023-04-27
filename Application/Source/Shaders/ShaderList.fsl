@@ -1,0 +1,15 @@
+#comp Pathtrace.comp
+#include "Pathtrace.comp.fsl"
+#end
+
+#comp Resolve.comp
+#include "Resolve.comp.fsl"
+#end
+
+#vert Quad.vert
+#include "Quad.vert.fsl"
+#end
+
+#frag Tonemap.frag
+#include "Tonemap.frag.fsl"
+#end

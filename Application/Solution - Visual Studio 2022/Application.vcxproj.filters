@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{604d24fe-b9b8-4cfc-b11f-a843d86328b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{4c26721a-0e41-44aa-bf82-504ae9916ff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Headers">
+      <UniqueIdentifier>{36ab818c-7b5b-4fe9-9a95-a4035cb5ee0a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Source\PathTracingApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FSLShader Include="..\Source\Shaders\Quad.vert.fsl">
+      <Filter>Shaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Pathtrace.comp.fsl">
+      <Filter>Shaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\ShaderList.fsl">
+      <Filter>Shaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Headers\Defines.h.fsl">
+      <Filter>Shaders\Headers</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Headers\Helpers.h.fsl">
+      <Filter>Shaders\Headers</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Headers\Random.h.fsl">
+      <Filter>Shaders\Headers</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Headers\Resources.h.fsl">
+      <Filter>Shaders\Headers</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Resolve.comp.fsl">
+      <Filter>Shaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Tonemap.frag.fsl">
+      <Filter>Shaders</Filter>
+    </FSLShader>
+    <FSLShader Include="..\Source\Shaders\Headers\Sky.h.fsl">
+      <Filter>Shaders\Headers</Filter>
+    </FSLShader>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\Shaders\Headers\Shared.h">
+      <Filter>Shaders\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

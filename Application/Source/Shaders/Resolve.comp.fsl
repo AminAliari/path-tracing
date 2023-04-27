@@ -1,0 +1,21 @@
+#include "Headers/Resource.h.fsl"
+
+NUM_THREADS(TILE_SIZE, TILE_SIZE, 1)
+void CS_MAIN(SV_DispatchThreadID(uint3) DTid)
+{
+    INIT_MAIN;
+
+    if (AnyGreaterThan(DTid.xy, Get(screenSize)))
+    {
+        RETURN();
+    }
+
+    float3 current = LoadRWTex2D(Get(pathtraceUAV), DTid.xy).rgb;
+    float3 prev = LoadTex2D(Get(prevPathtraceSRV), NO_SAMPLER, DTid.xy, 0).rgb;
+
+    float3 color = lerp(prev, current, Get(historyWeight));
+
+    Write2D(Get(pathtraceUAV), DTid.xy, float4(color, 1.0));
+
+    RETURN();
+}

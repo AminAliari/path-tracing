@@ -1,0 +1,25 @@
+#ifndef RESOURCES_H
+#define RESOURCES_H
+
+// includes
+#include "Headers/Shared.h"
+#include "Headers/Define.h.fsl"
+
+// push constants
+// PUSH_CONSTANT(rootConstants, b1)
+
+
+// space: UPDATE_FREQ_NONE
+RES(RWTex2D(float4),   pathtraceUAV,      UPDATE_FREQ_NONE, u0, binding = 0);
+RES(Tex2D(float4),     pathtraceSRV,      UPDATE_FREQ_NONE, t0, binding = 1);
+RES(Tex2D(float4),     prevPathtraceSRV,  UPDATE_FREQ_NONE, t1, binding = 2);
+RES(SamplerState,      nearestSampler,    UPDATE_FREQ_NONE, s0, binding = 3);
+
+
+// space: UPDATE_FREQ_PER_FRAME
+// CBUFFER(FrameUB, UPDATE_FREQ_PER_FRAME, b0, binding = 0)
+
+RES(Buffer(SphereObject), spheresBuffer,    UPDATE_FREQ_PER_FRAME, t0, binding = 1);
+RES(Buffer(QuadObject),   quadsBuffer,      UPDATE_FREQ_PER_FRAME, t1, binding = 2);
+RES(Buffer(Material),     materialsBuffer,  UPDATE_FREQ_PER_FRAME, t2, binding = 3);
+#endif
