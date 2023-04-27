@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # Software Path Tracing on GPU - [Web Page](https://aminaliari.github.io/posts/path-tracing)
@@ -24,15 +25,14 @@
 ```
 4. Select `Debug` or `Release` as the build target.
 
-
 ## References
-- [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
-- [https://blog.demofox.org/2020/05/25/casual-shadertoy-path-tracing-1-basic-camera-diffuse-emissive/](https://blog.demofox.org/2020/05/25/casual-shadertoy-path-tracing-1-basic-camera-diffuse-emissive/)
-- [https://www.youtube.com/watch?v=Qz0KTGYJtUk&ab_channel=SebastianLague](https://www.youtube.com/watch?v=Qz0KTGYJtUk&ab_channel=SebastianLague)
-- *A Framework for the Experimental Comparison of Solar and Skydive Illumination*, Joseph T. Kider Jr et al., Cornell University 2014.
-- [https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky.html](https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky.html)
 - [The Forge](https://github.com/ConfettiFX/The-Forge)
-  
+- [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+- [Coding Adventure: Ray Tracing](https://www.youtube.com/watch?v=Qz0KTGYJtUk&ab_channel=SebastianLague)
+- [Simulating the Colors of the Sky](https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky.html)
+- [Casual Shadertoy Path Tracing 1: Basic Camera, Diffuse, Emissive](https://blog.demofox.org/2020/05/25casual-shadertoy-path-tracing-1-basic-camera-diffuse-emissive)
+- *A Framework for the Experimental Comparison of Solar and Skydive Illumination*, Joseph T. Kider Jr et al., Cornell University 2014.
+
 
 ## License
 
