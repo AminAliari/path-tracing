@@ -7,7 +7,7 @@
 
 <div align="center">
 
-![IMAGE ALT TEXT HERE](header.png)]
+![IMAGE ALT TEXT HERE](header.png)
 
 </div>
 
