@@ -19,9 +19,7 @@
 2. Open the project with Visual Studio 2022:
 
 ```
-
 /Application/Solution - Visual Studio 2022/Project.snl
-
 ```
 4. Select `Debug` or `Release` as the build target.
 
