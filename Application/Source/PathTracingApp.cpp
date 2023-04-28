@@ -130,6 +130,7 @@ void resetHistory()
     gFrameNumber = 0;
 }
 
+
 class PathTracingApp : public IApp
 {
 public:
@@ -490,7 +491,7 @@ public:
 
                 // addFirstScene();
                 addCornellBox();
-                addOneWeekendScene();
+                // addOneWeekendScene();
             }
 
             addShaders();
