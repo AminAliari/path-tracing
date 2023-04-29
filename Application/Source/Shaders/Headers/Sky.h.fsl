@@ -37,7 +37,7 @@ float3 ExpensiveAtmosphere(float3 rayDir, float3 sunDir)
     float tCurrent = tMin;
     float opticalDepthR = 0;
     float opticalDepthM = 0;
-    float segmentLength = (tMax - tMin) / float(SKY_SAMPLE_COUNT);
+    float segmentLength = (tMax - tMin) / asfloat(SKY_SAMPLE_COUNT);
 
     // mie and rayleigh contribution 
     float3 sumR = f3(0);
@@ -61,7 +61,7 @@ float3 ExpensiveAtmosphere(float3 rayDir, float3 sunDir)
         float tCurrentLight = 0;
         float opticalDepthLightR = 0;
         float opticalDepthLightM = 0;
-        float segmentLengthLight = t1Light / float(SKY_LIGHT_SAMPLE_COUNT);
+        float segmentLengthLight = t1Light / asfloat(SKY_LIGHT_SAMPLE_COUNT);
 
         uint j;
         for (j = 0; j < SKY_LIGHT_SAMPLE_COUNT; ++j)
