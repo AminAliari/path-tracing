@@ -151,7 +151,7 @@ void CS_MAIN(SV_DispatchThreadID(uint3) DTid)
         accLight += TraceRay(rayOrigin, rayDir, seed);
     }
 
-    const float invSpp = 1.0 / asfloat(spp);
+    const float invSpp = 1.0 / float(spp);
     accLight *= invSpp;
 
     Write2D(Get(pathtraceUAV), DTid.xy, float4(accLight, 1.0));
