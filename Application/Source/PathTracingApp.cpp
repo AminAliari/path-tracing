@@ -41,7 +41,9 @@ do                                                                              
 // Globals
 uint32_t       gFrameIndex = 0;
 const uint32_t gImageCount = 3;
-uint64_t       gFrameCounter = 0;
+bool           gIsPaused = false;
+uint64_t       gTotalFrameCounter = 0;
+bool           gTakeScreenshot = false;
 bool           gCurrentPathtraceIndex = false;
 uint32_t       gPathtraceRootConstantIndex = 0;
 
@@ -91,7 +93,7 @@ Buffer* pMaterialsBuffer[gImageCount] = { NULL };
 
 
 // RWTextures
-Texture* pPathtraceTexture[2] = { NULL };
+Texture* pPathtraceTextures[2] = { NULL };
 
 
 // Rendering
@@ -111,11 +113,6 @@ FontDrawDesc       gFrameTimeDraw;
 UIComponent*       pGuiWindow = NULL;
 ICameraController* pCameraController = NULL;
 ProfileToken       gGpuProfileToken = PROFILE_INVALID_TOKEN;
-
-
-// Global flags
-bool gIsPaused = false;
-bool gTakeScreenshot = false;
 
 
 // Configs
@@ -445,7 +442,6 @@ public:
 
         exitFontSystem();
 
-        // Exit profile
         exitProfiler();
 
         for (uint32_t i = 0; i < gImageCount; ++i)
@@ -548,7 +544,7 @@ public:
         {
             for (uint32_t i = 0; i < 2; ++i)
             {
-                removeResource(pPathtraceTexture[i]);
+                removeResource(pPathtraceTextures[i]);
             }
 
             removeSwapChain(pRenderer, pSwapChain);
@@ -605,13 +601,13 @@ public:
                 {
                     resetHistory();
                     camPrevRotation = camRot;
+                    gFrameUB.camPos = float4(v3ToF3(camPos), 1);
                 }
             }
 
             // Update history and frame number.
             {
                 gFrameUB.frameNumber = gFrameNumber;
-                gFrameUB.camPos = float4(v3ToF3(camPos), 1);
                 gFrameUB.historyWeight = 1.f / (gFrameUB.frameNumber + 1);
                 
                 bformat(&gFrameNumberStr, "Frame: %d", gFrameNumber++);
@@ -671,8 +667,8 @@ public:
 
         cmdBeginGpuFrameProfile(cmd, gGpuProfileToken);
 
-        Texture* prevPathtraceTex = pPathtraceTexture[!gCurrentPathtraceIndex];
-        Texture* currPathtraceTex = pPathtraceTexture[gCurrentPathtraceIndex];
+        Texture* prevPathtraceTex = pPathtraceTextures[!gCurrentPathtraceIndex];
+        Texture* currPathtraceTex = pPathtraceTextures[gCurrentPathtraceIndex];
 
         // Compute passes
         if (!gIsPaused)
@@ -803,7 +799,7 @@ public:
                     // gFrameCounter is of type uint64_t. 
                     // Therefore, it has a maximum of floor(log(2^64-1)) + 1 = 20 digits.
                     char filename[20 + 4];
-                    sprintf(filename, "%" PRIu64 ".png", gFrameCounter);
+                    sprintf(filename, "%" PRIu64 ".png", gTotalFrameCounter);
 
                     captureScreenshot(pSwapChain, swapchainImageIndex, RESOURCE_STATE_PRESENT, filename);
                 }
@@ -814,7 +810,7 @@ public:
         }
 
         gFrameIndex = (gFrameIndex + 1) % gImageCount;
-        ++gFrameCounter;
+        ++gTotalFrameCounter;
 
         gCurrentPathtraceIndex = !gCurrentPathtraceIndex;
     }
@@ -846,6 +842,8 @@ public:
         desc.mArraySize = 1;
         desc.mMipLevels = 1;
         desc.mSampleCount = SAMPLE_COUNT_1;
+        desc.mStartState = RESOURCE_STATE_UNORDERED_ACCESS;
+        desc.mDescriptors = DESCRIPTOR_TYPE_TEXTURE | DESCRIPTOR_TYPE_RW_TEXTURE;
 
         // using more floats here is worth it since we can avoid dealing with low precision and numerical errors.
         {
@@ -853,23 +851,20 @@ public:
             desc.mFormat = TinyImageFormat_R32G32B32A32_SFLOAT;
         }
 
-        desc.mDescriptors = DESCRIPTOR_TYPE_TEXTURE | DESCRIPTOR_TYPE_RW_TEXTURE;
-
         TextureLoadDesc textureDesc = {};
         textureDesc.pDesc = &desc;
 
         const char* textureNames[2] = { "pPathtraceTexture_Back", "pPathtraceTexture_Front" };
-        const ResourceState startStates[2] = { RESOURCE_STATE_UNORDERED_ACCESS, RESOURCE_STATE_UNORDERED_ACCESS };
 
         for (uint32_t i = 0; i < 2; ++i)
         {
             desc.pName = textureNames[i];
-            desc.mStartState = startStates[i];
-            textureDesc.ppTexture = &pPathtraceTexture[i];
+
+            textureDesc.ppTexture = &pPathtraceTextures[i];
             addResource(&textureDesc, NULL);
         }
 
-        return pPathtraceTexture[0] != NULL && pPathtraceTexture[1] != NULL;
+        return pPathtraceTextures[0] != NULL && pPathtraceTextures[1] != NULL;
     }
 
     void addDescriptorSets()
@@ -1049,10 +1044,10 @@ public:
             DescriptorData params[paramCount] = {};
             params[0].pName = "pathtraceUAV";
 
-            params[0].ppTextures = &pPathtraceTexture[gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 0, pPathtraceDS_None, paramCount, params);
 
-            params[0].ppTextures = &pPathtraceTexture[!gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[!gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 1, pPathtraceDS_None, paramCount, params);
         }
 
@@ -1084,12 +1079,12 @@ public:
             params[0].pName = "pathtraceUAV";
             params[1].pName = "prevPathtraceSRV";
 
-            params[0].ppTextures = &pPathtraceTexture[gCurrentPathtraceIndex];
-            params[1].ppTextures = &pPathtraceTexture[!gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[gCurrentPathtraceIndex];
+            params[1].ppTextures = &pPathtraceTextures[!gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 0, pResolveDS_None, paramCount, params);
 
-            params[0].ppTextures = &pPathtraceTexture[!gCurrentPathtraceIndex];
-            params[1].ppTextures = &pPathtraceTexture[gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[!gCurrentPathtraceIndex];
+            params[1].ppTextures = &pPathtraceTextures[gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 1, pResolveDS_None, paramCount, params);
         }
 
@@ -1099,10 +1094,10 @@ public:
             DescriptorData params[paramCount] = {};
             params[0].pName = "pathtraceSRV";
 
-            params[0].ppTextures = &pPathtraceTexture[gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 0, pTonemapDS_None, paramCount, params);
 
-            params[0].ppTextures = &pPathtraceTexture[!gCurrentPathtraceIndex];
+            params[0].ppTextures = &pPathtraceTextures[!gCurrentPathtraceIndex];
             updateDescriptorSet(pRenderer, 1, pTonemapDS_None, paramCount, params);
         }
     }
