@@ -327,20 +327,12 @@ public:
                 UIWidget* pWidget = uiCreateComponentWidget(pGuiWindow, "Sky Mode", &skyModeUI, WIDGET_TYPE_DROPDOWN);
                 pWidget->pOnEdited = [](void*) { resetHistory(); };
 
-                SliderFloatWidget sunLightXUI;
-                sunLightXUI.pData = &gSunLightRot.x;
-                sunLightXUI.mMin = -PI;
-                sunLightXUI.mMax = PI;
-                sunLightXUI.mStep = 1e-8f;
-                pWidget = uiCreateComponentWidget(pGuiWindow, "Sun Light - X", &sunLightXUI, WIDGET_TYPE_SLIDER_FLOAT);
-                pWidget->pOnEdited = [](void*) { resetHistory(); };
-
-                SliderFloatWidget sunLightYUI;
-                sunLightYUI.pData = &gSunLightRot.y;
-                sunLightYUI.mMin = -PI;
-                sunLightYUI.mMax = PI;
-                sunLightYUI.mStep = 1e-8f;
-                pWidget = uiCreateComponentWidget(pGuiWindow, "Sun Light - Y", &sunLightYUI, WIDGET_TYPE_SLIDER_FLOAT);
+                SliderFloat2Widget sunLightXUI;
+                sunLightXUI.pData = &gSunLightRot;
+                sunLightXUI.mMin = float2(- PI);
+                sunLightXUI.mMax = float2(PI);
+                sunLightXUI.mStep = float2(1e-8f);
+                pWidget = uiCreateComponentWidget(pGuiWindow, "Sun Light", &sunLightXUI, WIDGET_TYPE_SLIDER_FLOAT2);
                 pWidget->pOnEdited = [](void*) { resetHistory(); };
 
                 SliderFloatWidget sunFocusUI;
