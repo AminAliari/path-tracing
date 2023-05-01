@@ -1,16 +1,16 @@
 STRUCT(VSOutput)
 {
-	DATA(float4, position, SV_Position);
-	DATA(float2, texCoord, TEXCOORD);
+    DATA(float4, position, SV_Position);
+    DATA(float2, texCoord, TEXCOORD);
 };
 
 VSOutput VS_MAIN(SV_VertexID(uint) VertexID)
 {
-	INIT_MAIN;
-	VSOutput Out;
+    INIT_MAIN;
+    VSOutput Out;
 
-	Out.texCoord = float2((VertexID << 1) & 2, VertexID & 2);
-	Out.position = float4(Out.texCoord * float2(2, -2) + float2(-1, 1), 0, 1);
+    Out.texCoord = float2((VertexID << 1) & 2, VertexID & 2);
+    Out.position = float4(Out.texCoord * float2(2, -2) + float2(-1, 1), 0, 1);
 
-	RETURN(Out);
+    RETURN(Out);
 }
