@@ -44,7 +44,7 @@ bool rayQuadTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir, flo
 {
     bool ret = false;
 
-	float3 quadNormal = normalize(cross(b - a, c - a));
+    float3 quadNormal = normalize(cross(b - a, c - a));
     float denom = dot(quadNormal, rayDir);
 
     if (abs(denom) > EPSILON)
@@ -57,21 +57,27 @@ bool rayQuadTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir, flo
             {
                 float3 hitPoint = rayOrigin + t * rayDir;
 
-                // check intersection-vertices with edges.
-                float step0 = step(0, dot(cross(b - a, hitPoint - a), quadNormal));
-				float step1 = step(0, dot(cross(c - b, hitPoint - b), quadNormal));
-				float step2 = step(0, dot(cross(d - c, hitPoint - c), quadNormal));
-				float step3 = step(0, dot(cross(a - d, hitPoint - d), quadNormal));
-				float steps = step0 + step1 + step2 + step3;
+                // project the point onto the quad edges.
+                float3 ba = b-a;
+                float3 da = d-a;
+                float3 ha = hitPoint-a;
+                float u = dot(ba, ha);
+                float v = dot(da, ha);
+                float ba2 = dot(ba, ba);
+                float da2 = dot(da, da);
 
-				if (steps == 0.0 || steps == 4.0)
-				{
-                    ret = true;
-                    closestHit.t = t;
-                    closestHit.matId = matId;
-                    closestHit.pos = hitPoint;
-                    // handle back side.
-                    closestHit.normal = lerp(quadNormal, -quadNormal, step(0, denom));
+                if ((u >= 0.0 && u <= ba2))
+                {
+                    if (v >= 0.0 && v <= da2)
+                    {
+                        ret = true;
+                        closestHit.t = t;
+                        closestHit.matId = matId;
+                        closestHit.pos = hitPoint;
+
+                        // handle back side.
+                        closestHit.normal = lerp(quadNormal, -quadNormal, step(0, denom));
+                    }
                 }
             }
         }
@@ -125,14 +131,14 @@ INLINE float3 clipToUv(float3 clipspace)
 
 INLINE float2 uvToClip(float2 uv)
 {
-	float2 clipspace = uv * 2 - 1;
-	clipspace.y *= -1;
-	return clipspace;
+    float2 clipspace = uv * 2 - 1;
+    clipspace.y *= -1;
+    return clipspace;
 }
 
 INLINE float3 clipToWorld(float3 clipspace, float4x4 invProj)
 {
-	float4 worldPos = mul(invProj, float4(clipspace.xyz, 1));
+    float4 worldPos = mul(invProj, float4(clipspace.xyz, 1));
     return worldPos.xyz / worldPos.w;
 }
 
