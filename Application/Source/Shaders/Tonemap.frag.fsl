@@ -14,13 +14,11 @@ float4 PS_MAIN(PsIn In)
 
     float3 color = SampleTex2D(Get(pathtraceSRV), Get(nearestSampler), In.uv).rgb;
 
-#if 1
     // todo(amin): better tone mapping (current: Reinhard)
     color = color / (color + f3(1));
 
     // todo(amin): better gamma correction
     Out.rgb = gammaCorrect(color);
-#endif
 
     RETURN(Out);
 }

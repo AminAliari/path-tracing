@@ -569,6 +569,7 @@ public:
 
             // Update camera and projection
             vec2 camRot = pCameraController->getRotationXY();
+            static vec3 cbufferCamPos = vec3(0); 
             vec3 camPos = pCameraController->getViewPosition();
             {
                 mat4 viewMat = pCameraController->getViewMatrix();
@@ -577,10 +578,12 @@ public:
                 const float aspectInverse = (float)mSettings.mHeight / (float)mSettings.mWidth;
                 CameraMatrix projMat = CameraMatrix::perspective(horizontalFov, aspectInverse, 1000.f, 0.1f);
 
-                gFrameUB.viewProj = projMat.getPrimaryMatrix() * viewMat;
-                gFrameUB.invViewProj = inverse(gFrameUB.viewProj);
-                gFrameUB.screenSize = uint2(mSettings.mWidth, mSettings.mHeight);
-                gFrameUB.invScreenSize = float2(1.f / (float)gFrameUB.screenSize[0], 1.f / (float)gFrameUB.screenSize[1]);
+                mat4 viewProj = projMat.getPrimaryMatrix() * viewMat; 
+                gFrameUB.viewProj = viewProj;
+                gFrameUB.invViewProj = inverse(viewProj);
+                uint2 screenSize = uint2(mSettings.mWidth, mSettings.mHeight);
+                gFrameUB.screenSize = screenSize;
+                gFrameUB.invScreenSize = float2(1.f / (float)screenSize[0], 1.f / (float)screenSize[1]);
             }
 
             // Reset history if camera has moved.
@@ -589,18 +592,19 @@ public:
                 static vec2 camPrevRotation = vec2(0);
                 vec2 rotDiff = camPrevRotation - camRot;
 
-                if ( ( length(f3Tov3(gFrameUB.camPos.getXYZ()) - camPos) > threshold ) || ( dot(rotDiff, rotDiff) > threshold ) )
+                if ( ( length(cbufferCamPos - camPos) > threshold ) || ( dot(rotDiff, rotDiff) > threshold ) )
                 {
                     resetHistory();
                     camPrevRotation = camRot;
-                    gFrameUB.camPos = float4(v3ToF3(camPos), 1);
+                    cbufferCamPos = camPos;
+                    gFrameUB.camPos = float4(v3ToF3(cbufferCamPos), 1);
                 }
             }
 
             // Update history and frame number.
             {
                 gFrameUB.frameNumber = gFrameNumber;
-                gFrameUB.historyWeight = 1.f / (gFrameUB.frameNumber + 1);
+                gFrameUB.historyWeight = 1.f / (gFrameNumber + 1);
                 
                 bformat(&gFrameNumberStr, "Frame: %d", gFrameNumber++);
             }
