@@ -76,6 +76,7 @@ RootSignature* pPathtraceRootSignature = NULL;
 // CPU data
 FrameUB       gFrameUB = {};
 uint32_t      gActiveMaterialIndex = 0;
+bool          gSceneNeedsUpdate = true;
 QuadObject    gQuads[MAX_QUADS_COUNT];
 SphereObject  gSpheres[MAX_SPHERES_COUNT];
 Material      gMaterials[MAX_MATERIAL_COUNT];
@@ -466,8 +467,10 @@ public:
 
     bool Load(ReloadDesc* pReloadDesc)
     {
-        gCurrentPathtraceIndex = false;
         resetHistory();
+        gSceneNeedsUpdate = true;
+        gCurrentPathtraceIndex = false;
+
 
         if (pReloadDesc->mType & RELOAD_TYPE_SHADER)
         {
@@ -639,20 +642,25 @@ public:
             *(FrameUB*)frameCbv.pMappedData = gFrameUB;
             endUpdateResource(&frameCbv, NULL);
 
-            BufferUpdateDesc sphereRWBuffer = { pSpheresBuffer[gFrameIndex] };
-            beginUpdateResource(&sphereRWBuffer);
-            memcpy(sphereRWBuffer.pMappedData, gSpheres, sizeof(SphereObject) * MAX_SPHERES_COUNT);
-            endUpdateResource(&sphereRWBuffer, NULL);
+            if (gSceneNeedsUpdate)
+            {
+                BufferUpdateDesc rwBuffer = { pSpheresBuffer[gFrameIndex] };
+                beginUpdateResource(&rwBuffer);
+                memcpy(rwBuffer.pMappedData, gSpheres, sizeof(SphereObject) * MAX_SPHERES_COUNT);
+                endUpdateResource(&rwBuffer, NULL);
 
-            BufferUpdateDesc quadRWBuffer = { pQuadsBuffer[gFrameIndex] };
-            beginUpdateResource(&quadRWBuffer);
-            memcpy(quadRWBuffer.pMappedData, gQuads, sizeof(QuadObject) * MAX_QUADS_COUNT);
-            endUpdateResource(&quadRWBuffer, NULL);
+                rwBuffer = { pQuadsBuffer[gFrameIndex] };
+                beginUpdateResource(&rwBuffer);
+                memcpy(rwBuffer.pMappedData, gQuads, sizeof(QuadObject) * MAX_QUADS_COUNT);
+                endUpdateResource(&rwBuffer, NULL);
 
-            BufferUpdateDesc materialRWBuffer = { pMaterialsBuffer[gFrameIndex] };
-            beginUpdateResource(&materialRWBuffer);
-            memcpy(materialRWBuffer.pMappedData, gMaterials, sizeof(Material) * MAX_MATERIAL_COUNT);
-            endUpdateResource(&materialRWBuffer, NULL);
+                rwBuffer = { pMaterialsBuffer[gFrameIndex] };
+                beginUpdateResource(&rwBuffer);
+                memcpy(rwBuffer.pMappedData, gMaterials, sizeof(Material) * MAX_MATERIAL_COUNT);
+                endUpdateResource(&rwBuffer, NULL);
+
+                gSceneNeedsUpdate = !(gFrameIndex + 1 == gImageCount);
+            }
         }
 
         // Reset cmd pool for this frame
