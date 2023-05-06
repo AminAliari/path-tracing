@@ -310,7 +310,7 @@ public:
 
             SliderIntWidget maxBounceUI;
             maxBounceUI.pData = &gRootConstants.args.y;
-            maxBounceUI.mMin = 2;
+            maxBounceUI.mMin = 1;
             maxBounceUI.mMax = MAX_RAY_BOUNCE;
             uiCreateComponentWidget(pGuiWindow, "Max Bounce", &maxBounceUI, WIDGET_TYPE_SLIDER_INT);
 

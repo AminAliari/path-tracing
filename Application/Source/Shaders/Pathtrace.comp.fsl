@@ -32,41 +32,36 @@ float3 CalcSkyColor(float3 rayDir)
 
 bool raySceneTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir)
 {
-    bool ret = false;
     closestHit.t = FLT_MAX;
 
     // spheres
-    {
-        int sphereCount = Get(args).z;
+    int sphereCount = Get(args).z;
 
-        LOOP
-        for (int i = 0; i < sphereCount; ++i)
-        {
-            SphereObject sphere = Get(spheresBuffer)[i];
-            ret = ret || raySphereTest(closestHit, rayOrigin, rayDir, sphere.centerRadius.xyz, sphere.centerRadius.w, sphere.matId.x);
-        }
+    LOOP
+    for (int i = 0; i < sphereCount; ++i)
+    {
+        SphereObject sphere = Get(spheresBuffer)[i];
+        raySphereTest(closestHit, rayOrigin, rayDir, sphere.centerRadius.xyz, sphere.centerRadius.w, sphere.matId.x);
     }
 
     // quads
+    int quadCount = Get(args).w;
+
+    LOOP
+    for (int j = 0; j < quadCount; ++j)
     {
-        int quadCount = Get(args).w;
+        QuadObject quad = Get(quadsBuffer)[j];
 
-        LOOP
-        for (int i = 0; i < quadCount; ++i)
-        {
-            QuadObject quad = Get(quadsBuffer)[i];
+        // unpack quad corners.
+        float3 a  = quad.aXYZbX.xyz;
+        float3 b  = float3(quad.aXYZbX.w, quad.bYZcXY.xy);
+        float3 c  = float3(quad.bYZcXY.zw, quad.cZdXYZ.x);
+        float3 d  = quad.cZdXYZ.yzw;
 
-            // unpack quad corners.
-            float3 a  = quad.aXYZbX.xyz;
-            float3 b  = float3(quad.aXYZbX.w, quad.bYZcXY.xy);
-            float3 c  = float3(quad.bYZcXY.zw, quad.cZdXYZ.x);
-            float3 d  = quad.cZdXYZ.yzw;
-
-            ret = ret || rayQuadTest(closestHit, rayOrigin, rayDir, a, b, c, d, quad.matId.x);
-        }
+        rayQuadTest(closestHit, rayOrigin, rayDir, a, b, c, d, quad.matId.x);
     }
 
-    return ret;
+    return closestHit.t != FLT_MAX;
 }
 
 float3 TraceRay(float3 rayOrigin, float3 rayDir, inout(uint) seed)
