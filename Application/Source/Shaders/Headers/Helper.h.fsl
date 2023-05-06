@@ -59,15 +59,16 @@ bool rayQuadTest(inout(HitInfo) closestHit, float3 rayOrigin, float3 rayDir, flo
 
                 // project the point onto the quad edges.
                 float3 ba = b-a;
-                float3 da = d-a;
                 float3 ha = hitPoint-a;
                 float u = dot(ba, ha);
-                float v = dot(da, ha);
                 float ba2 = dot(ba, ba);
-                float da2 = dot(da, da);
 
                 if (u >= 0.0 && u <= ba2)
                 {
+                    float3 da = d-a;
+                    float v = dot(da, ha);
+                    float da2 = dot(da, da);
+
                     if (v >= 0.0 && v <= da2)
                     {
                         ret = true;

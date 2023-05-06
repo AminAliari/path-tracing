@@ -1128,12 +1128,12 @@ public:
         // right sphere
         addSphere(float3( 9.0f, -12.5f, 20.f), 3.0f, float3(0.75f, 0.9f, 0.9f), float4(0), 0, float4(0));
 
+        // light
+        addQuad(float3(-5.f, 15.49f, 17.5f), float3(-5.f, 15.49f, 22.5f), float3(5.f, 15.49f, 22.5f), float3(5.f, 15.49f, 17.5f), float3(0), float4(1), 0, float4(0));
+
         // back quad
         addQuad(float3(-15.5f, -15.5f, 30.f), float3(-15.5f, 15.5f, 30.f), float3(15.5f, 15.5f, 30.f), float3(15.5f, -15.5f, 30.f), float3(0.7f, 0.7f, 0.7f), float4(0), 0, float4(0.7f, 0.7f, 0.7f, 0.f));
 
-        // light
-        addQuad(float3(-5.f, 15.4f, 17.5f), float3(-5.f, 15.4f, 22.5f), float3(5.f, 15.4f, 22.5f), float3(5.f, 15.4f, 17.5f), float3(0), float4(1), 0, float4(0));
-        
         // left quad
         addQuad(float3(-15.5f, -15.5f, 10.f), float3(-15.5f, 15.5f, 10.f), float3(-15.5f, 15.5f, 30.f), float3(-15.5f, -15.5f, 30.f), float3(0.7f, 0.1f, 0.1f), float4(0), 0, float4(0.7f, 0.1f, 0.1f, 0.f));
 
