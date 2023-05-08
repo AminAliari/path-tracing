@@ -1127,31 +1127,31 @@ public:
 
     void addCornellBox()
     {
-        // left sphere
+        // 0: left sphere
         addSphere(float3(-9.0f, -12.5f, 20.f), 3.0f, float3(0), float4(0), 1, float4(1));
         
-        // middle sphere
+        // 1: middle sphere
         addSphere(float3( 0.0f, -12.5f, 20.f), 3.0f, float3(0.9f, 0.25f, 0.25f), float4(0), 0.8f, float4(0.8f, 0.8f, 0.8f, 0.02f));
         
-        // right sphere
+        // 2: right sphere
         addSphere(float3( 9.0f, -12.5f, 20.f), 3.0f, float3(0.75f, 0.9f, 0.9f), float4(0), 0, float4(0));
 
-        // light
+        // 3: light
         addQuad(float3(-5.f, 15.49f, 17.5f), float3(-5.f, 15.49f, 22.5f), float3(5.f, 15.49f, 22.5f), float3(5.f, 15.49f, 17.5f), float3(0), float4(1), 0, float4(0));
 
-        // back quad
+        // 4: back quad
         addQuad(float3(-15.5f, -15.5f, 30.f), float3(-15.5f, 15.5f, 30.f), float3(15.5f, 15.5f, 30.f), float3(15.5f, -15.5f, 30.f), float3(0.7f, 0.7f, 0.7f), float4(0), 0, float4(0.7f, 0.7f, 0.7f, 0.f));
 
-        // left quad
+        // 5: left quad
         addQuad(float3(-15.5f, -15.5f, 10.f), float3(-15.5f, 15.5f, 10.f), float3(-15.5f, 15.5f, 30.f), float3(-15.5f, -15.5f, 30.f), float3(0.7f, 0.1f, 0.1f), float4(0), 0, float4(0.7f, 0.1f, 0.1f, 0.f));
 
-        // right quad
+        // 6: right quad
         addQuad(float3(15.5f, -15.5f, 10.f), float3(15.5f, -15.5f, 30.f), float3(15.5f, 15.5f, 30.f), float3(15.5f, 15.5f, 10.f), float3(0.1f, 0.7f, 0.1f), float4(0), 0, float4(0.1f, 0.7f, 0.1f, 0.f));
 
-        // top quad
+        // 7: top quad
         addQuad(float3(-15.5f, 15.5f, 10.f), float3(-15.5f, 15.5f, 30.f), float3(15.5f, 15.5f, 30.f), float3(15.5f, 15.5f, 10.f), float3(0.7f, 0.7f, 0.7f), float4(0), 0, float4(0.7f, 0.7f, 0.7f, 0.f));
 
-        // bottom quad
+        // 8: bottom quad
         addQuad(float3(-15.5f, -15.5f, 10.f), float3(-15.5f, -15.5f, 30.f), float3(15.5f, -15.5f, 30.f), float3(15.5f, -15.5f, 10.f), float3(0.7f, 0.7f, 0.7f), float4(0), 0, float4(0.7f, 0.7f, 0.7f, 0.f));
     }
 
